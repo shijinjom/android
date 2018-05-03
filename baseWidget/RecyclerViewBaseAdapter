@@ -1,0 +1,39 @@
+#recyclerView 的BaseAdapter
+
+1.使用方法 和recyclerview写法并没有太大差别
+
+ 
+/**
+主要 接收使用  List<T>集合 
+* /
+public abstract class BaseRecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    List<T> list = null;
+    Context context = null;
+    int layout;
+
+    public BaseRecyclerAdapter(Context context, List<T> list, int layout) {
+        this.context = context;
+        this.layout = layout;
+        this.list = list;
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+
+        View view = LayoutInflater.from(context).inflate(layout, viewGroup, false);
+        //此处直接使用 系统自带的RecyclerView.ViewHolder
+        return new RecyclerView.ViewHolder(view) {
+        };
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        getView(viewHolder, position, list.get(position));
+    }
+    //提供出一个抽象方法，有使用者自己去实现相关代码，holder.itemView 可以找到控件，也可以做条目的点击事件
+    public abstract void getView(RecyclerView.ViewHolder holder, int position, T t);
+
+    @Override
+    public int getItemCount() {
+        return list.size();
+    }
