@@ -171,3 +171,42 @@ public class ZipView extends View {
 
 
 }
+
+//自定义属性文件
+  <declare-styleable name="ZipView">
+        <attr name="zipview_coclor" format="color" />
+        <attr name="zipview_size" format="dimension" />
+    </declare-styleable>
+    
+//布局文件
+
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <com.example.re.zipcode.ZipView
+        android:id="@+id/zip"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        app:zipview_coclor="@color/zip_color"
+        app:zipview_size="@dimen/zip_size" />
+
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/colorPrimary"
+        android:gravity="center" />
+
+</FrameLayout>
+
+
+
+![image](https://github.com/shijinjom/android/blob/master/pic/1525859034.jpg)
+ 
