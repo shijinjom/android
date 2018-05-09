@@ -1,0 +1,173 @@
+
+//自定义字母索引 （使用时 按需复制即可）
+
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.PointF;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.MotionEvent;
+import android.view.View;
+
+/**
+ * Created by shijin on 2018/5/9.
+ */
+
+public class ZipView extends View {
+    private Paint mPaint;
+    private Paint mPaintselect;
+    //字母的颜色
+    private int zipview_color;
+    //字母的大小
+    private float zipview_size;
+
+    //获得字母的宽度
+    private float zip_width = 0;
+    //控件的高度
+    private int height;
+    //控件的宽度
+    private int width;
+    //当前的字母；
+    private String currentzip;
+    //当前的位置
+    private int currentindex = -1;
+
+    private String[] zipstr = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+
+    public ZipView(Context context) {
+        this(context, null);
+    }
+
+    public ZipView(Context context, @Nullable AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public ZipView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ZipView);
+        zipview_color = typedArray.getColor(R.styleable.ZipView_zipview_coclor, getResources().getColor(R.color.colorAccent));
+        zipview_size = typedArray.getDimension(R.styleable.ZipView_zipview_size, spTopx(12));
+        typedArray.recycle();
+
+        initpaint();
+    }
+
+    //初始化画笔
+    private void initpaint() {
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);//抗锯齿
+        mPaint.setColor(zipview_color);
+        mPaint.setTextSize(zipview_size);
+
+        mPaintselect = new Paint();//高亮显示画笔
+        mPaintselect.setAntiAlias(true);
+        mPaintselect.setColor(Color.BLUE);
+        mPaintselect.setTextSize(zipview_size);
+
+//测量字母的宽度
+        zip_width = mPaint.measureText("A");
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        switch (event.getAction()) {
+
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE:
+
+                //判断点击的位置
+                float y = event.getY();
+                currentindex = (int) (y / itemtheigh);
+//越界判断
+                if (currentindex < 0) currentindex = 0;
+
+                if (currentindex > zipstr.length - 1) {
+                    currentindex = zipstr.length - 1;
+                }
+
+
+                currentzip = zipstr[currentindex];
+
+                if (zipSelectListener != null) {
+                    zipSelectListener.zipshow(currentzip);
+                }
+                invalidate();
+                break;
+
+            case MotionEvent.ACTION_UP:
+                if (zipSelectListener != null) {
+                    zipSelectListener.ziphiden();
+                }
+                break;
+
+        }
+
+
+        return true;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        height = MeasureSpec.getSize(heightMeasureSpec);
+        width = (int) (zip_width + getPaddingLeft() + getPaddingRight());
+        setMeasuredDimension(width, height);
+    }
+
+    int itemtheigh;
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        canvas.save();
+        int x = (int) (width / 2 - zip_width / 2);
+        itemtheigh = (height - getPaddingBottom() - getPaddingTop()) / zipstr.length;
+        for (int i = 0; i < zipstr.length; i++) {
+
+
+            int zipcenterY = i * itemtheigh + itemtheigh / 2 + getPaddingTop();
+            //dy 代表的是：高度的一半到 baseLine的距离
+            Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
+            // top 是一个负值  bottom 是一个正值    top，bttom的值代表是  bottom是baseLine到文字底部的距离（正值）
+            // 必须要清楚的，可以自己打印就好
+            int dy = (fontMetrics.bottom - fontMetrics.top) / 2 - fontMetrics.bottom;
+            int baseLine = zipcenterY + dy;
+
+            if (currentindex == i) {
+                canvas.drawText(zipstr[i], x, baseLine, mPaintselect);
+            } else {
+                canvas.drawText(zipstr[i], x, baseLine, mPaint);
+            }
+
+        }
+
+        canvas.restore();
+    }
+
+
+    public float spTopx(float size) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, size, getResources().getDisplayMetrics());
+    }
+
+
+    public interface ZipSelectListener {
+        void zipshow(String zipstr);
+
+        void ziphiden();
+    }
+
+    ZipSelectListener zipSelectListener;
+
+    public void setOnZipSelectListener(ZipSelectListener zipSelectListener) {
+        this.zipSelectListener = zipSelectListener;
+    }
+
+
+}
